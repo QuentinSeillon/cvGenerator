@@ -37,21 +37,23 @@ const CvSchema = new mongoose.Schema({
             }
         }
     ],
-    recommandations: [{
-        auteur: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        },
-        contenu: {
-            type: String,
-            required: true
-        },
-        date: {
-            type: Date,
-            default: Date.now
+    recommandations: [
+        {
+            auteur: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            contenu: {
+                type: String,
+                required: true
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            }
         }
-    }],
+    ],
     isVisible: {
         type: Boolean,
         required: true

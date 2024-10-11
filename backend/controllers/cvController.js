@@ -6,7 +6,6 @@ module.exports = {
         try {
             verifyCv(req.body);
             const { nom, prenom, description, experiencesPeda, experiencesPro, recommandations, isVisible } = req.body;
-            
 
             const newCv = new CvModel({
                 nom,

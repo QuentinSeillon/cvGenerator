@@ -74,7 +74,7 @@ module.exports = {
                         properties: {
                             auteur: {
                                 type: 'string',
-                                pattern: "^[0-9a-fA-F]{24}$",  // Validation pour ObjectId de MongoDB
+                                pattern: '^[0-9a-fA-F]{24}$', // Validation pour ObjectId de MongoDB
                                 errorMessage: 'Auteur must be a valid ObjectId'
                             },
                             contenu: {
@@ -92,7 +92,15 @@ module.exports = {
                     errorMessage: 'Check if your Cv is visible or not'
                 }
             },
-            required: ['nom', 'prenom', 'description', 'experiencesPeda', 'experiencesPro', 'recommandations', 'isVisible']
+            required: [
+                'nom',
+                'prenom',
+                'description',
+                'experiencesPeda',
+                'experiencesPro',
+                'recommandations',
+                'isVisible'
+            ]
         };
 
         let result = validator.validate(cv, cvSchema);
