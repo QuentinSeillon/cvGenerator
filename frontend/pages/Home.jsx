@@ -8,7 +8,7 @@ function Home() {
   return (
     <div>
       {user ? (
-        <h1>Bienvenue, {user.user.nom}!</h1> // Affiche le nom de l'utilisateur connecté
+        <h1>Bienvenue, {user.nom}!</h1> // Affiche le nom de l'utilisateur connecté
       ) : (
         <h1>Bienvenue Inconnue.</h1> // Message si l'utilisateur n'est pas connecté
       )}

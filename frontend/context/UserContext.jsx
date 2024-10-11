@@ -4,33 +4,46 @@ import PropTypes from 'prop-types';
 export const UserContext = createContext(null);
 
 const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const storeUser = localStorage.getItem('user');
-    return storeUser ? JSON.parse(storeUser) : null;
-  });
+  const [user, setUser] = useState(null);
 
   const login = (logInfos) => {
     console.log('logInfos => ', logInfos);
 
-    setUser(logInfos);
-    localStorage.setItem('user', JSON.stringify());
+    const userInfos = {
+      id: logInfos.user.id,
+      nom: logInfos.user.nom,
+      prenom: logInfos.user.prenom
+    };
+
+    const token = logInfos.user.token;
+
+    console.log('userInfos => ', userInfos);
+    console.log('token => ', token);
+
+    setUser(userInfos);
+
+    localStorage.setItem('user', JSON.stringify(userInfos));
+    localStorage.setItem('token', token);
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   const getUserInfos = () => {
-    if (user) {
-      return user;
-    } else {
+    if (!user) {
       const storeUser = localStorage.getItem('user');
       if (storeUser) {
-        setUser(JSON.parse(storeUser));
-        return storeUser;
+        setTimeout(() => {
+          setUser(JSON.parse(storeUser));
+        }, 0);
+        return JSON.parse(storeUser);
       }
+      return null;
     }
+    return user;
   };
 
   return <UserContext.Provider value={{ login, logout, getUserInfos }}>{children}</UserContext.Provider>;

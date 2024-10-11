@@ -1,17 +1,15 @@
-import { useContext } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { UserContext } from '../context/UserContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
-function Login() {
-  const apiUrl = 'http://localhost:3000/api/auth/login';
+function Register() {
+  const apiUrl = 'http://localhost:3000/api/user/register';
   const navigate = useNavigate();
-  const { login } = useContext(UserContext);
-
   return (
     <Formik
       initialValues={{
+        nom: '',
+        prenom: '',
         email: '',
         password: ''
       }}
@@ -25,20 +23,21 @@ function Login() {
             body: JSON.stringify(values)
           });
 
-          if (response.status === 200) {
+          if (response.ok) {
             const data = await response.json();
-            console.log('data dans Login.jsx => ', data);
-            login(data);
-            navigate('/', { replace: true });
+            console.log(data);
+            navigate('/login', { replace: true });
           } else {
             const errorData = await response.json();
-            console.log(errorData.error);
+            console.log('Erreur dans le formulaire =>', errorData.error);
           }
         } catch (error) {
           console.log(error.message);
         }
       }}
       validationSchema={Yup.object({
+        nom: Yup.string().required('Required'),
+        prenom: Yup.string().required('Required'),
         email: Yup.string().email('Invalid email format').required('Required'),
         password: Yup.string().required('Required')
       })}
@@ -46,12 +45,22 @@ function Login() {
       {({ isSubmitting }) => (
         <Form>
           <div className="form-group">
+            <label htmlFor="nom">Nom :</label>
+            <Field className="form-control" type="nom" name="nom" />
+            <ErrorMessage style={{ color: 'red' }} name="nom" component="div" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="prenom">Prenom :</label>
+            <Field className="form-control" type="prenom" name="prenom" />
+            <ErrorMessage style={{ color: 'red' }} name="prenom" component="div" />
+          </div>
+          <div className="form-group">
             <label htmlFor="email">Email :</label>
             <Field className="form-control" type="email" name="email" />
             <ErrorMessage style={{ color: 'red' }} name="email" component="div" />
           </div>
           <div className="form-group">
-            <label htmlFor="login">Password :</label>
+            <label htmlFor="password">Password :</label>
             <Field className="form-control" type="password" name="password" />
             <ErrorMessage style={{ color: 'red' }} name="password" component="div" />
           </div>
@@ -64,4 +73,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

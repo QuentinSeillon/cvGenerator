@@ -14,6 +14,13 @@ function Header() {
             Home
           </Link>
         </li>
+        {user && (
+          <li className="nav-item">
+            <Link to={'/create-cv'} className="nav-link">
+              Create CV
+            </Link>
+          </li>
+        )}
         <li className="nav-items">
           {user ? (
             <div>
@@ -22,9 +29,14 @@ function Header() {
               </span>
             </div>
           ) : (
-            <Link to={'/login'} className="nav-link">
-              Login
-            </Link>
+            <div className="d-flex align-items-center">
+              <Link to={'/register'} className="nav-link">
+                Register
+              </Link>
+              <Link to={'/login'} className="nav-link">
+                Login
+              </Link>
+            </div>
           )}
         </li>
       </ul>
