@@ -29,4 +29,3 @@ Clonez le dépôt sur votre machine locale :
 
 ```bash
 git clone https://github.com/QuentinSeillon/cvGenerator.git
-cd renforcementJs
