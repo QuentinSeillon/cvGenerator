@@ -1,49 +1,96 @@
-import { useContext } from 'react';
-import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { useEffect, useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { UserContext } from '../context/UserContext.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-function CreateCv() {
-  const apiUrl = 'http://localhost:3000/api/cv/create';
+function UpdateCv() {
+  const { id } = useParams(); // Récupère l'ID du CV depuis l'URL
   const navigate = useNavigate();
-  const { getUserInfos } = useContext(UserContext);
+  const apiURL = `http://localhost:3000/api/cv/${id}`; // URL pour récupérer le CV spécifique
+  const updateURL = `http://localhost:3000/api/cv/update/${id}`; // URL pour mettre à jour le CV
 
-  // Vérifier si l'utilisateur est connecté
-  const user = getUserInfos();
+  const [initialValues, setInitialValues] = useState({
+    nom: '',
+    prenom: '',
+    description: '',
+    experiencesPeda: [{ titre: '', description: '' }],
+    experiencesPro: [{ titre: '', description: '' }],
+    isVisible: false
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  console.log('user Dans CreateCv.jsx => ', user);
+  // Récupérer les données du CV au chargement
+  useEffect(() => {
+    const fetchCv = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(apiURL, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
 
-  if (!user) {
-    // Afficher un message si l'utilisateur n'est pas connecté
-    return <h1>Please log in to create a CV</h1>;
+        if (!response.ok) {
+          throw new Error('Failed to fetch CV');
+        }
+
+        const data = await response.json();
+        setInitialValues(data); // Charger les valeurs initiales pour Formik
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCv();
+  }, [apiURL]);
+
+  if (loading) {
+    return <p>Loading...</p>; // Affiche un message de chargement
   }
+
+  if (error) {
+    return <p>Error: {error}</p>; // Affiche une erreur si la requête échoue
+  }
+
+  // Validation Schema pour Formik avec Yup
+  const validationSchema = Yup.object({
+    nom: Yup.string().required('Required'),
+    prenom: Yup.string().required('Required'),
+    description: Yup.string().min(15, 'Description must be at least 15 characters').required('Required'),
+    experiencesPeda: Yup.array()
+      .of(
+        Yup.object().shape({
+          titre: Yup.string().required('Required'),
+          description: Yup.string().min(10, 'Description must be at least 10 characters').required('Required')
+        })
+      )
+      .min(1, 'At least one pedagogical experience is required'),
+    experiencesPro: Yup.array()
+      .of(
+        Yup.object().shape({
+          titre: Yup.string().required('Required'),
+          description: Yup.string().min(10, 'Description must be at least 10 characters').required('Required')
+        })
+      )
+      .min(1, 'At least one professional experience is required'),
+    isVisible: Yup.boolean().required('Visibility is required')
+  });
 
   return (
     <Formik
-      initialValues={{
-        nom: '',
-        prenom: '',
-        description: '',
-        experiencesPeda: [{ titre: '', description: '' }],
-        experiencesPro: [{ titre: '', description: '' }],
-        isVisible: false
-      }}
-      onSubmit={async (values) => {
-        console.log('coucou');
-
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      enableReinitialize={true}
+      onSubmit={async (values, { setSubmitting }) => {
         try {
           const token = localStorage.getItem('token');
-          console.log('token => ', token);
-
-          if (!token) {
-            console.error('Token is missing'); // Debugging
-          }
-
-          console.log('values => ', values);
-
-          const response = await fetch(apiUrl, {
-            method: 'POST',
+          const response = await fetch(updateURL, {
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`
@@ -51,46 +98,22 @@ function CreateCv() {
             body: JSON.stringify(values)
           });
 
-          console.log('response => ', response);
-
-          if (response.ok) {
-            navigate('/');
-          } else {
-            console.error('Response status: ', response.status);
-            const errorData = await response.json();
-            console.log('Error creating CV:', errorData);
+          if (!response.ok) {
+            throw new Error('Failed to update CV');
           }
+
+          navigate('/my-cvs'); // Redirige après la mise à jour
         } catch (error) {
-          console.log('Error creating CV:', error.message);
+          setError(error.message);
+        } finally {
+          setSubmitting(false);
         }
       }}
-      validationSchema={Yup.object({
-        nom: Yup.string().required('Required'),
-        prenom: Yup.string().required('Required'),
-        description: Yup.string().min(15, 'Description must be at least 15 characters').required('Required'),
-        experiencesPeda: Yup.array()
-          .of(
-            Yup.object().shape({
-              titre: Yup.string().required('Required'),
-              description: Yup.string().min(10, 'Description must be at least 10 characters').required('Required')
-            })
-          )
-          .min(1, 'At least one pedagogical experience is required'),
-        experiencesPro: Yup.array()
-          .of(
-            Yup.object().shape({
-              titre: Yup.string().required('Required'),
-              description: Yup.string().min(10, 'Description must be at least 10 characters').required('Required')
-            })
-          )
-          .min(1, 'At least one professional experience is required'),
-        isVisible: Yup.boolean().required('Visibility is required')
-      })}
     >
-      {({ isSubmitting, values, setFieldValue }) => (
+      {({ values, isSubmitting, setFieldValue }) => (
         <Form>
           <div className="container">
-            <h2 className="my-4">Créer un CV</h2>
+            <h2 className="my-4">Modifier le CV</h2>
 
             <div className="form-group mb-3">
               <label htmlFor="nom">Nom :</label>
@@ -146,7 +169,7 @@ function CreateCv() {
                   />
                 </div>
 
-                <div className="form-group d-flex  justify-content-around align-items-baseline mt-3">
+                <div className="form-group d-flex justify-content-around align-items-baseline mt-3">
                   <button
                     type="button"
                     className="btn btn-secondary"
@@ -223,8 +246,8 @@ function CreateCv() {
               </div>
             ))}
 
-            <button className="btn btn-primary mt-3" type="submit" disabled={isSubmitting}>
-              Soumettre
+            <button className="btn btn-primary mt-4" type="submit" disabled={isSubmitting}>
+              Mettre à jour le CV
             </button>
           </div>
         </Form>
@@ -233,4 +256,4 @@ function CreateCv() {
   );
 }
 
-export default CreateCv;
+export default UpdateCv;

@@ -67,45 +67,19 @@ module.exports = {
                     },
                     minItems: 1
                 },
-                recommandations: {
-                    type: 'array',
-                    items: {
-                        type: 'object',
-                        properties: {
-                            auteur: {
-                                type: 'string',
-                                pattern: '^[0-9a-fA-F]{24}$', // Validation pour ObjectId de MongoDB
-                                errorMessage: 'Auteur must be a valid ObjectId'
-                            },
-                            contenu: {
-                                type: 'string',
-                                minLength: 10,
-                                errorMessage: 'Recommendation content must be at least 10 characters long'
-                            }
-                        },
-                        required: ['auteur', 'contenu']
-                    },
-                    errorMessage: 'Recommandations must be valid'
-                },
                 isVisible: {
                     type: 'boolean',
                     errorMessage: 'Check if your Cv is visible or not'
                 }
             },
-            required: [
-                'nom',
-                'prenom',
-                'description',
-                'experiencesPeda',
-                'experiencesPro',
-                'recommandations',
-                'isVisible'
-            ]
+            required: ['nom', 'prenom', 'description', 'experiencesPeda', 'experiencesPro', 'isVisible']
         };
 
         let result = validator.validate(cv, cvSchema);
 
         if (result.errors.length) {
+            console.log('result error => ', result.errors);
+
             const errorInputsMessage = result.errors
                 .map((error) => {
                     return error.schema.errorMessage;

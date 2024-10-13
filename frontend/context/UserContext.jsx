@@ -1,10 +1,12 @@
 import { createContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
 export const UserContext = createContext(null);
 
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   const login = (logInfos) => {
     console.log('logInfos => ', logInfos);
@@ -17,10 +19,10 @@ const UserProvider = ({ children }) => {
 
     const token = logInfos.user.token;
 
-    console.log('userInfos => ', userInfos);
-    console.log('token => ', token);
-
     setUser(userInfos);
+
+    console.log('userInfos => ', userInfos);
+    console.log('token dans UserProvider => ', token);
 
     localStorage.setItem('user', JSON.stringify(userInfos));
     localStorage.setItem('token', token);
@@ -30,6 +32,7 @@ const UserProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    navigate('/', { replace: true });
   };
 
   const getUserInfos = () => {

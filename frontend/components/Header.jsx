@@ -14,12 +14,24 @@ function Header() {
             Home
           </Link>
         </li>
+        <li className="nav-item">
+          <Link to={'/all-cv'} className="nav-link">
+            All CV
+          </Link>
+        </li>
         {user && (
-          <li className="nav-item">
-            <Link to={'/create-cv'} className="nav-link">
-              Create CV
-            </Link>
-          </li>
+          <>
+            <li className="nav-item">
+              <Link to={'/create-cv'} className="nav-link">
+                Create CV
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to={'/my-cvs'} className="nav-link">
+                My CVs
+              </Link>
+            </li>
+          </>
         )}
         <li className="nav-items">
           {user ? (

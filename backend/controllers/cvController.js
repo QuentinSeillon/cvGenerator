@@ -4,8 +4,17 @@ const CvModel = require('../models/CV');
 module.exports = {
     createCv: async (req, res) => {
         try {
+            console.log('CreateCV');
+
+            console.log('requestbody', req.body);
+            console.log('requestuser', req.user);
+
+            const userId = req.user._id;
+
+            console.log('userId Dans createCv => ', userId);
+
             verifyCv(req.body);
-            const { nom, prenom, description, experiencesPeda, experiencesPro, recommandations, isVisible } = req.body;
+            const { nom, prenom, description, experiencesPeda, experiencesPro, isVisible } = req.body;
 
             const newCv = new CvModel({
                 nom,
@@ -13,11 +22,11 @@ module.exports = {
                 description,
                 experiencesPeda,
                 experiencesPro,
-                recommandations,
-                isVisible
+                isVisible,
+                user: userId
             });
 
-            newCv.save();
+            await newCv.save();
             res.status(201).send({
                 id: newCv._id,
                 nom: newCv.nom,
@@ -25,12 +34,137 @@ module.exports = {
                 description: newCv.description,
                 experiencesPeda: newCv.experiencesPeda,
                 experiencesPro: newCv.experiencesPro,
-                recommandations: newCv.recommandations,
-                isVisible: newCv.isVisible
+                isVisible: newCv.isVisible,
+                user: newCv.user
             });
         } catch (error) {
-            res.status(401).send({
+            res.status(400).send({
                 message: 'Error during creating new cv',
+                error: error.message
+            });
+        }
+    },
+    allCv: async (req, res) => {
+        try {
+            const cv = await CvModel.find().populate('user'); // Assure-toi de peupler le champ user
+            res.status(200).send(cv);
+        } catch (error) {
+            res.status(400).send({
+                message: 'Error during getting all cv',
+                error: error.message
+            });
+        }
+    },
+    cvByUser: async (req, res) => {
+        try {
+            const cvs = await CvModel.find({ user: req.user._id }).populate('user');
+            res.status(200).send(cvs);
+        } catch (error) {
+            res.status(400).send({
+                message: 'Error during getting cv by user',
+                error: error.message
+            });
+        }
+    },
+    updateCv: async (req, res) => {
+        try {
+            const { nom, prenom, description, experiencesPeda, experiencesPro, isVisible } = req.body;
+            const cv = await CvModel.findById(req.params.id);
+            cv.nom = nom;
+            cv.prenom = prenom;
+            cv.description = description;
+            cv.experiencesPeda = experiencesPeda;
+            cv.experiencesPro = experiencesPro;
+            cv.isVisible = isVisible;
+            await cv.save();
+            res.status(200).send({
+                message: 'Cv updated successfully',
+                cv
+            });
+        } catch (error) {
+            res.status(400).send({
+                message: 'Error during updating cv',
+                error: error.message
+            });
+        }
+    },
+    deleteCv: async (req, res) => {
+        try {
+            await CvModel.findByIdAndDelete(req.params.id);
+            res.status(200).send({
+                message: 'Cv deleted successfully'
+            });
+        } catch (error) {
+            res.status(400).send({
+                message: 'Error during deleting cv',
+                error: error.message
+            });
+        }
+    },
+    getCvById: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const cv = await CvModel.findById(req.params.id);
+
+            if (!cv) {
+                return res.status(404).send({ message: 'CV not found' });
+            }
+
+            if (cv.user.toString() !== userId) {
+                return res.status(403).send({ message: 'Access denied: You do not own this CV' });
+            }
+
+            res.status(200).send(cv);
+        } catch (error) {
+            res.status(400).send({
+                message: 'Error during getting CV',
+                error: error.message
+            });
+        }
+    },
+    recommendationCv: async (req, res) => {
+        try {
+            const { text } = req.body; // Récupérer le contenu de la recommandation
+
+            // Vérification que le texte de la recommandation est présent
+            if (!text) {
+                return res.status(400).send({ message: 'Recommendation text is required' });
+            }
+
+            const cvId = req.params.id; // ID du CV
+            const userId = req.user._id; // ID de l'utilisateur authentifié
+
+            // Chercher le CV par son ID
+            const cv = await CvModel.findById(cvId);
+
+            // Vérifier si le CV existe
+            if (!cv) {
+                return res.status(404).send({ message: 'CV not found' });
+            }
+
+            // Vérifier si l'utilisateur n'essaie pas de recommander son propre CV
+            if (cv.user.toString() === userId.toString()) {
+                return res.status(403).send({ message: 'You cannot recommend your own CV' });
+            }
+
+            // Créer une nouvelle recommandation
+            const newRecommendation = {
+                auteur: userId, // L'auteur est l'utilisateur connecté
+                contenu: text, // Contenu de la recommandation
+                date: Date.now() // Date de création
+            };
+
+            // Ajouter la recommandation au tableau des recommandations du CV
+            cv.recommandations.push(newRecommendation);
+            await cv.save(); // Enregistrer le CV mis à jour
+
+            res.status(200).send({
+                message: 'Recommendation added successfully',
+                recommendations: cv.recommandations // Retourne les recommandations mises à jour
+            });
+        } catch (error) {
+            res.status(400).send({
+                message: 'Error during adding recommendation',
                 error: error.message
             });
         }
