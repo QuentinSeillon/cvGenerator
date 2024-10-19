@@ -3,6 +3,7 @@ const UserModel = require('../models/User');
 const bcrypt = require('bcrypt');
 
 module.exports = {
+    // Creer un nouvel utilisateur
     createUser: async (req, res) => {
         verifyUser(req.body);
 

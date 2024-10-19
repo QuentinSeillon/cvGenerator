@@ -5,7 +5,8 @@ import * as Yup from 'yup';
 import { UserContext } from '../context/UserContext.jsx';
 
 function Login() {
-  const apiUrl = 'http://localhost:3000/api/auth/login';
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const apiUrl = `${url}/auth/login`;
   const navigate = useNavigate();
   const { login } = useContext(UserContext);
 

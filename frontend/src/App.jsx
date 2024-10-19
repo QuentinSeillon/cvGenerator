@@ -11,7 +11,7 @@ import Cv from '../pages/Cv';
 import MyCv from '../pages/MyCv';
 import UpdateCv from '../pages/UpdateCv';
 
-function App() {
+function App() {  
   return (
     <div className="container-fluid vh-100 vw-100">
       <div className="row">

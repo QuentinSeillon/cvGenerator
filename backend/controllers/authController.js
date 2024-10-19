@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 module.exports = {
+    // Authentification de l'utilisateur
     login: async (req, res) => {
         const { email, password } = req.body;
 

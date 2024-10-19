@@ -3,7 +3,8 @@ import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 
 function Register() {
-  const apiUrl = 'http://localhost:3000/api/user/register';
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const apiUrl = `${url}/user/register`;
   const navigate = useNavigate();
   return (
     <Formik

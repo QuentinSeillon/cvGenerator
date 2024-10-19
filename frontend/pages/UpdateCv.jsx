@@ -5,10 +5,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function UpdateCv() {
+  const url = import.meta.env.VITE_BACKEND_URL;
   const { id } = useParams(); // Récupère l'ID du CV depuis l'URL
   const navigate = useNavigate();
-  const apiURL = `http://localhost:3000/api/cv/${id}`; // URL pour récupérer le CV spécifique
-  const updateURL = `http://localhost:3000/api/cv/update/${id}`; // URL pour mettre à jour le CV
+  const apiURL = `${url}/cv/${id}`; // URL pour récupérer le CV spécifique
+  const updateURL = `${url}/cv/update/${id}`; // URL pour mettre à jour le CV
 
   const [initialValues, setInitialValues] = useState({
     nom: '',

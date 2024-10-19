@@ -5,7 +5,8 @@ import { UserContext } from '../context/UserContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
 function CreateCv() {
-  const apiUrl = 'http://localhost:3000/api/cv/create';
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const apiUrl = `${url}/cv/create`;
   const navigate = useNavigate();
   const { getUserInfos } = useContext(UserContext);
 

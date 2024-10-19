@@ -3,6 +3,8 @@
 Show your CVs est un site qui permet à tout type d'utilisateur de créer son/ses CV et de le partager à d'autres utilisateurs.
 Pour utiliser pleinement cette site, il faut qu' l'utilisateur soit inscrit et connecté !
 
+Développé par : Quentin SEILLON
+
 ## Prérequis
 
 Avant de commencer, assurez-vous d'avoir installé les éléments suivants :

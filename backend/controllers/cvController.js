@@ -2,6 +2,7 @@ const { verifyCv } = require('./../validator/cvValidator');
 const CvModel = require('../models/CV');
 
 module.exports = {
+    // Creer un CV
     createCv: async (req, res) => {
         try {
             console.log('CreateCV');
@@ -44,6 +45,7 @@ module.exports = {
             });
         }
     },
+    // Afficher tous les CV de tous les utilisateurs
     allCv: async (req, res) => {
         try {
             const cv = await CvModel.find().populate('user'); // Assure-toi de peupler le champ user
@@ -55,6 +57,7 @@ module.exports = {
             });
         }
     },
+    // Afficher les cv de l'utilisateur via l'ID de l'utilisateur
     cvByUser: async (req, res) => {
         try {
             const cvs = await CvModel.find({ user: req.user._id }).populate('user');
@@ -66,6 +69,7 @@ module.exports = {
             });
         }
     },
+    // Mettre à jour un CV via son ID
     updateCv: async (req, res) => {
         try {
             const { nom, prenom, description, experiencesPeda, experiencesPro, isVisible } = req.body;
@@ -88,6 +92,7 @@ module.exports = {
             });
         }
     },
+    // Supprimer un CV via son ID
     deleteCv: async (req, res) => {
         try {
             await CvModel.findByIdAndDelete(req.params.id);
@@ -101,6 +106,7 @@ module.exports = {
             });
         }
     },
+    // Afficher un CV via son ID
     getCvById: async (req, res) => {
         try {
             const userId = req.user.id;
@@ -122,9 +128,10 @@ module.exports = {
             });
         }
     },
+    // Ajouter une recommandation à un CV
     recommendationCv: async (req, res) => {
         try {
-            const { text } = req.body; // Récupérer le contenu de la recommandation
+            const { text } = req.body;
 
             // Vérification que le texte de la recommandation est présent
             if (!text) {
@@ -149,18 +156,18 @@ module.exports = {
 
             // Créer une nouvelle recommandation
             const newRecommendation = {
-                auteur: userId, // L'auteur est l'utilisateur connecté
-                contenu: text, // Contenu de la recommandation
-                date: Date.now() // Date de création
+                auteur: userId,
+                contenu: text,
+                date: Date.now()
             };
 
             // Ajouter la recommandation au tableau des recommandations du CV
             cv.recommandations.push(newRecommendation);
-            await cv.save(); // Enregistrer le CV mis à jour
+            await cv.save();
 
             res.status(200).send({
                 message: 'Recommendation added successfully',
-                recommendations: cv.recommandations // Retourne les recommandations mises à jour
+                recommendations: cv.recommandations
             });
         } catch (error) {
             res.status(400).send({

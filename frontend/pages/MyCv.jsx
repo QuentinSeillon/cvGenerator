@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Assure-toi d'importer Bootstrap
 
 function Cv() {
-  const apiURL = 'http://localhost:3000/api/cv/my-cvs'; // Assure-toi que cette route est correcte
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const apiURL = `${url}/cv/my-cvs`; // Assure-toi que cette route est correcte
   const [cvs, setCvs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +45,36 @@ function Cv() {
 
   const handleEdit = (id) => {
     navigate(`/edit-cv/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      console.error('Token is missing'); // Debugging
+      return;
+    }
+
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce CV ?')) {
+      try {
+        const response = await fetch(`${url}/cv/delete/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete CV');
+        }
+
+        // Met à jour la liste des CV après la suppression
+        setCvs((prevCvs) => prevCvs.filter((cv) => cv._id !== id));
+      } catch (error) {
+        setError(error.message);
+      }
+    }
   };
 
   if (loading) {
@@ -95,6 +126,9 @@ function Cv() {
 
                 <button className="btn btn-primary mt-3" onClick={() => handleEdit(cv._id)}>
                   Modifier le CV
+                </button>
+                <button className="btn btn-danger mt-3" onClick={() => handleDelete(cv._id)}>
+                  Supprimer le CV
                 </button>
               </div>
             </div>
