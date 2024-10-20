@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+        "source": "/api/(.*)",
+        "destination": "https://cvgenerator-tczd.onrender.com/api/$1"
+        }
+    ]
+}
