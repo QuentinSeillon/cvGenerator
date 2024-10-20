@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 function Register() {
   const url = import.meta.env.VITE_BACKEND_URL;
   const apiUrl = `${url}/user/register`;
+  
   const navigate = useNavigate();
   return (
     <Formik
