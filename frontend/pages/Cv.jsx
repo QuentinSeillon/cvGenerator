@@ -49,7 +49,7 @@ function Cv() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/cv/update/${selectedCv}/recommendation`, {
+      const response = await fetch(`${url}/cv/update/${selectedCv}/recommendation`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
